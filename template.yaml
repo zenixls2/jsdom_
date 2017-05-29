@@ -2,13 +2,19 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
 Description: A jsdom renderer for crawling pages
 Resources:
-    jsdomrender:
-        Type: 'AWS::Serverless::Function'
-        Properties:
-            Handler: index.lambdaHandler
-            Runtime: nodejs6.10
-            CodeUri: .
-            Description: A starter AWS Lambda function.
-            MemorySize: 256
-            Timeout: 3
-            Role: !<tag:yaml.org,2002:js/undefined> ''
+  jsdomrender:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: index.lambdaHandler
+      Runtime: nodejs6.10
+      CodeUri: .
+      Description: A starter AWS Lambda function.
+      MemorySize: 256
+      Timeout: 3
+      Role: !<tag:yaml.org,2002:js/undefined> ''
+      Events:
+        GetEvent:
+          Type: Api
+          Properties:
+            Path: /jsdomrender
+            Method: get

@@ -49,3 +49,28 @@ aws lambda create-function \
 ```
 
 For more information, see [CreateFunction](http://docs.aws.amazon.com/cli/latest/reference/lambda/create-function.html). AWS Lambda creates the function and returns function configuration information.
+
+or use cloudformation:
+
+Create new s3bucket
+```bash
+aws s3 mb s3://bucket-name --region region
+```
+
+And get code-uri:
+```bash
+aws cloudformation package \
+   --template-file template.yaml \
+   --output-template-file serverless-output.yaml \
+   --s3-bucket s3-bucket-name
+```
+
+Finally deploy using:
+```bash
+aws cloudformation deploy \
+   --template-file serverless-output.yaml \
+   --stack-name new-stack-name \
+   --capabilities CAPABILITY_IAM
+```
+
+See [Create Serverless Application](http://docs.aws.amazon.com/lambda/latest/dg/serverless-deploy-wt.html) for more information.
