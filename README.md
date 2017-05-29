@@ -15,6 +15,20 @@ npm install
 npm run test
 ```
 
+### Usage
+
+https://{your_lambda_endpoint}?url={URL_ENCODED}\[&deplay={SECOND}\]\[&method={METHOD}\[&dataType={DATA_TYPE}\]\]\[&wait={WAIT_SECOND}\]
+
+- URL_ENCODED: target url using encodeURIComponent(url) or something equivalent
+
+- SECOND: optional, number of seconds allowed for waiting, default value = '5'
+
+- METHOD: optional, currently only support `GET` and `POST`, default value = `GET`
+
+- DATA_TYPE: optional, either `json` or `form`, only available when METHOD=`POST`. default value = `form`
+
+- WAIT_SECOND: optional, time (second) to wait for rendering html, default value = `1`
+
 ### Deployment
 First pack whole project as zip:
 ```bash
