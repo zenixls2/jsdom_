@@ -1,0 +1,14 @@
+{
+  "name": "jsdomrenderer",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "canvas-prebuilt": "^1.6.5-prerelease.1",
+    "jsdom": "^11.0.0",
+    "request": "^2.81.0"
+  }
+}
