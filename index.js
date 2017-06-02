@@ -24,7 +24,7 @@ exports.lambdaHandler = (event, context, callback) => {
       timeout: delay,
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36" +
-                      "(KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"
+                      "(KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36",
       }
     }
   let wrappedCallback = (error, response, body) => {
@@ -46,11 +46,12 @@ exports.lambdaHandler = (event, context, callback) => {
       let timer = dom.window.setTimeout(() => {
         callback(null, {
           statusCode: response.statusCode,
-          headers: {'Content-Type': 'text; charset=utf-8'},
-          // AWS Lambda gateway would perform utf-8 transform at runtime
-          // so we need to encode to binary first by ourself
-          // to prevent double encoding.
-          body: Buffer.from(dom.serialize(), "utf-8").toString('latin1'),
+          headers: {
+            'Content-Type':
+              response.headers['content-type'] ||
+              'text; charset=utf-8'
+          },
+          body: dom.serialize(),
         });
       }, wait);
     } catch(e) {
