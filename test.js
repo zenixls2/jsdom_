@@ -11,5 +11,6 @@ lambdaHandler({
     delay: '3',*/
   }
 }, null, (error, response) => {
-  console.log(response.body);
+  // mimic AWS Lambda gateway's behaviour
+  console.log(Buffer.from(response.body, 'latin1').toString('utf-8'))
 })

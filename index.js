@@ -47,7 +47,10 @@ exports.lambdaHandler = (event, context, callback) => {
         callback(null, {
           statusCode: response.statusCode,
           headers: {'Content-Type': 'text; charset=utf-8'},
-          body: dom.serialize(),
+          // AWS Lambda gateway would perform utf-8 transform at runtime
+          // so we need to encode to binary first by ourself
+          // to prevent double encoding.
+          body: Buffer.from(dom.serialize(), "utf-8").toString('latin1'),
         });
       }, wait);
     } catch(e) {
