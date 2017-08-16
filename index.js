@@ -1,11 +1,6 @@
 const request = require('request')
 const url = require('url');
 const fs = require('fs')
-let lastline = fs.readFileSync('./node_modules/jsdom/lib/api.js').toString().split('\n');
-if (lastline[lastline.length-1] !== 
-  'exports.defaultDocumentFeatures = defaultDocumentFeatures;') {
-  fs.appendFileSync('node_modules/jsdom/lib/api.js', '\nconst {defaultDocumentFeatures} = require("./jsdom/browser/documentfeatures");\ndefaultDocumentFeatures.FetchExternalResources = ["script", "link", "frame", "iframe"];\nexports.defaultDocumentFeatures = defaultDocumentFeatures;');
-}
 const jsdom = require("jsdom")
 const {JSDOM} = jsdom;
 const implSymbol = Symbol("impl");
@@ -43,7 +38,7 @@ exports.lambdaHandler = (event, context, callback) => {
         url: _url,
         userAgent: options.headers['User-Agent'],
         runScripts: 'dangerously',
-        resources: 'usable',
+        resources: ["script", "frame", "iframe"],
         virtualConsole: virtualConsole
       });
 
