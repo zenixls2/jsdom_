@@ -9,6 +9,8 @@ if (lastline[lastline.length-1] !==
 const jsdom = require("jsdom")
 const {JSDOM} = jsdom;
 const implSymbol = Symbol("impl");
+const virtualConsole = new jsdom.VirtualConsole();
+virtualConsole.on("jsdomError", (e) => {/*console.log(e)*/});
 
 exports.lambdaHandler = (event, context, callback) => {
   let params = event.queryStringParameters || event
@@ -41,6 +43,8 @@ exports.lambdaHandler = (event, context, callback) => {
         url: _url,
         userAgent: options.headers['User-Agent'],
         runScripts: 'dangerously',
+        resources: 'usable',
+        virtualConsole: virtualConsole
       });
 
       let timer = dom.window.setTimeout(() => {
@@ -53,6 +57,7 @@ exports.lambdaHandler = (event, context, callback) => {
           },
           body: dom.serialize(),
         });
+        dom.window.close();
       }, wait);
     } catch(e) {
       console.log('[Error] ', e);
