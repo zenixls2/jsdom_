@@ -35,7 +35,7 @@ exports.lambdaHandler = (event, context, callback) => {
     }
     try {
       let dom = new JSDOM(body, {
-        url: _url,
+        url: response.request.uri.href || _uri,
         userAgent: options.headers['User-Agent'],
         runScripts: 'dangerously',
         resources: ["script", "frame", "iframe"],
@@ -48,7 +48,8 @@ exports.lambdaHandler = (event, context, callback) => {
           headers: {
             'Content-Type':
               response.headers['content-type'] ||
-              'text; charset=utf-8'
+              'text; charset=utf-8',
+            'Location': dom.window.location.href,
           },
           body: dom.serialize(),
         });
