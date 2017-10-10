@@ -4,6 +4,7 @@ const fs = require('fs')
 const jsdom = require("jsdom")
 const {JSDOM} = jsdom;
 const implSymbol = Symbol("impl");
+const iconv = require('iconv-lite');
 const virtualConsole = new jsdom.VirtualConsole();
 virtualConsole.on("jsdomError", (e) => {/*console.log(e)*/});
 
@@ -15,6 +16,7 @@ exports.lambdaHandler = (event, context, callback) => {
   let method = params.method || 'GET'
   let options = {
       url: _url,
+      encoding: null,
       method: method,
       followRedirect: true,
       followAllRedirects: true,
@@ -33,25 +35,35 @@ exports.lambdaHandler = (event, context, callback) => {
         body: '<html lang="ja"></html>',
       })
     }
+    console.log(response.headers);
     try {
-      let dom = new JSDOM(body, {
-        url: response.request.uri.href || _uri,
-        userAgent: options.headers['User-Agent'],
-        runScripts: 'dangerously',
-        resources: ["script", "frame", "iframe"],
-        virtualConsole: virtualConsole
-      });
+      let dom = new JSDOM(
+        iconv.decode(body, (response.headers['content-type'] || '').split('charset=')[1] || 'utf-8'),
+        {
+          url: response.request.uri.href || _uri,
+          headers: response.headers,
+          userAgent: options.headers['User-Agent'],
+          runScripts: 'dangerously',
+          resources: ["script", "frame", "iframe"],
+          virtualConsole: virtualConsole
+        }
+      );
+      let tags = dom.window.document.getElementsByTagName('meta');
+      for (let i=0; i<tags.length; i++) {
+        if ((tags[i].getAttribute('http-equiv') || '').toLowerCase() == 'content-type') {
+          tags[i].setAttribute('content', 'text/html; charset=UTF-8');
+        }
+      }
 
       let timer = dom.window.setTimeout(() => {
         callback(null, {
           statusCode: response.statusCode,
           headers: {
             'Content-Type':
-              response.headers['content-type'] ||
               'text; charset=utf-8',
             'Location': dom.window.location.href,
           },
-          body: dom.serialize(),
+          body: dom.serialize().toString('utf-8'),
         });
         dom.window.close();
       }, wait);
