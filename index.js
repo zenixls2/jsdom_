@@ -37,8 +37,9 @@ exports.lambdaHandler = (event, context, callback) => {
     }
     console.log(response.headers);
     try {
+      let encoding = (response.headers['content-type'] || '').split('charset=')[1] || 'utf-8';
       let dom = new JSDOM(
-        iconv.decode(body, (response.headers['content-type'] || '').split('charset=')[1] || 'utf-8'),
+        iconv.decode(body, encoding),
         {
           url: response.request.uri.href || _uri,
           headers: response.headers,
@@ -51,6 +52,21 @@ exports.lambdaHandler = (event, context, callback) => {
       let tags = dom.window.document.getElementsByTagName('meta');
       for (let i=0; i<tags.length; i++) {
         if ((tags[i].getAttribute('http-equiv') || '').toLowerCase() == 'content-type') {
+          let tagEncoding = tags[i].getAttribute('content').split("charset=")[1] || 'utf-8';
+          if (encoding == 'utf-8' && tagEncoding != encoding) {
+            dom = new JSDOM(
+              iconv.decode(body, tagEncoding),
+              {
+                url: response.request.uri.href || _uri,
+                headers: response.headers,
+                userAgent: options.headers['User-Agent'],
+                runScripts: 'dangerously',
+                resources: ["script", "frame", "iframe"],
+                virtualConsole: virtualConsole
+              }
+            );
+            tags = dom.window.document.getElementsByTagName('meta');
+          }
           tags[i].setAttribute('content', 'text/html; charset=UTF-8');
         }
       }
