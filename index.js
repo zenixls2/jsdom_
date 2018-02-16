@@ -37,7 +37,7 @@ exports.lambdaHandler = (event, context, callback) => {
     }
     console.log(response.headers);
     try {
-      let encoding = (response.headers['content-type'] || '').split('charset=')[1] || 'utf-8';
+      let encoding = ((response.headers['content-type'] || '').split('charset=')[1] || 'utf-8').toLowerCase();
       let dom = new JSDOM(
         iconv.decode(body, encoding),
         {
@@ -52,8 +52,9 @@ exports.lambdaHandler = (event, context, callback) => {
       let tags = dom.window.document.getElementsByTagName('meta');
       for (let i=0; i<tags.length; i++) {
         if ((tags[i].getAttribute('http-equiv') || '').toLowerCase() == 'content-type') {
-          let tagEncoding = tags[i].getAttribute('content').split("charset=")[1] || 'utf-8';
+          let tagEncoding = (tags[i].getAttribute('content').split("charset=")[1] || 'utf-8').toLowerCase();
           if (encoding == 'utf-8' && tagEncoding != encoding) {
+            dom.window.close();
             dom = new JSDOM(
               iconv.decode(body, tagEncoding),
               {
@@ -68,6 +69,7 @@ exports.lambdaHandler = (event, context, callback) => {
             tags = dom.window.document.getElementsByTagName('meta');
           }
           tags[i].setAttribute('content', 'text/html; charset=UTF-8');
+          break;
         }
       }
 
