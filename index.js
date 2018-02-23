@@ -10,6 +10,7 @@ const virtualConsole = new jsdom.VirtualConsole();
 virtualConsole.sendTo(console);
 
 exports.lambdaHandler = (event, context, callback) => {
+  if (context) context.callbackWaitsForEmptyEventLoop = false;
   let params = event.queryStringParameters || event
   let _url = params.url;
   let wait = parseInt(params.wait || 1) * 1000
@@ -79,18 +80,7 @@ exports.lambdaHandler = (event, context, callback) => {
       // shoudl not use dom.window.setTimeout
       // otherwise the operation might be canceled
       let timer = setTimeout(() => {
-        if (dom.window._document) {
-          // clear execution queue
-          let head = dom.window._document;
-          while (head && head.prev) {
-            head = head.prev;
-          }
-          if (head) head = head.next;
-          if (head) {
-            head.next = null;
-            this._queue.tail = head;
-          }
-        }
+        console.log("start close operation");
         callback(null, {
           statusCode: response.statusCode,
           headers: {
@@ -98,9 +88,12 @@ exports.lambdaHandler = (event, context, callback) => {
               'text; charset=utf-8',
             'Location': dom.window.location.href,
           },
-          body: dom.serialize().toString('utf-8') || body.toString(tagEncoding),
+          body: dom.serialize().toString('utf-8') /*|| body.toString(tagEncoding)*/,
         });
+        console.log("widnow close");
         dom.window.close();
+        console.log("activeHandles", process._getActiveHandles());
+        console.log("activeRequests", process._getActiveRequests());
       }, wait);
     } catch(e) {
       console.log('[Error] ', e);
