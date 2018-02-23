@@ -76,6 +76,18 @@ exports.lambdaHandler = (event, context, callback) => {
       }
 
       let timer = dom.window.setTimeout(() => {
+        if (dom.window._document) {
+          // clear execution queue
+          let head = dom.window._document;
+          while (head && head.prev) {
+            head = head.prev;
+          }
+          if (head) head = head.next;
+          if (head) {
+            head.next = null;
+            this._queue.tail = head;
+          }
+        }
         callback(null, {
           statusCode: response.statusCode,
           headers: {
