@@ -7,6 +7,7 @@ const implSymbol = Symbol("impl");
 const iconv = require('iconv-lite');
 const virtualConsole = new jsdom.VirtualConsole();
 virtualConsole.on("jsdomError", (e) => {/*console.log(e)*/});
+//virtualConsole.sendTo(console);
 
 exports.lambdaHandler = (event, context, callback) => {
   let params = event.queryStringParameters || event
@@ -50,9 +51,10 @@ exports.lambdaHandler = (event, context, callback) => {
         }
       );
       let tags = dom.window.document.getElementsByTagName('meta');
+      let tagEncoding = encoding;
       for (let i=0; i<tags.length; i++) {
         if ((tags[i].getAttribute('http-equiv') || '').toLowerCase() == 'content-type') {
-          let tagEncoding = (tags[i].getAttribute('content').split("charset=")[1] || 'utf-8').toLowerCase();
+          tagEncoding = (tags[i].getAttribute('content').split("charset=")[1] || 'utf-8').toLowerCase();
           if (encoding == 'utf-8' && tagEncoding != encoding) {
             dom.window.close();
             dom = new JSDOM(
@@ -81,7 +83,7 @@ exports.lambdaHandler = (event, context, callback) => {
               'text; charset=utf-8',
             'Location': dom.window.location.href,
           },
-          body: dom.serialize().toString('utf-8'),
+          body: dom.serialize().toString('utf-8') || body.toString(tagEncoding),
         });
         dom.window.close();
       }, wait);
