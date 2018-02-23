@@ -90,7 +90,7 @@ exports.lambdaHandler = (event, context, callback) => {
           },
           body: dom.serialize().toString('utf-8') || body.toString(tagEncoding),
         });
-        console.log("widnow close");
+        console.log("window close");
         dom.window.close();
         console.log("activeHandles", process._getActiveHandles());
         console.log("activeRequests", process._getActiveRequests());
