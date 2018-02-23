@@ -88,7 +88,7 @@ exports.lambdaHandler = (event, context, callback) => {
               'text; charset=utf-8',
             'Location': dom.window.location.href,
           },
-          body: dom.serialize().toString('utf-8') /*|| body.toString(tagEncoding)*/,
+          body: dom.serialize().toString('utf-8') || body.toString(tagEncoding),
         });
         console.log("widnow close");
         dom.window.close();
