@@ -6,12 +6,12 @@ const {JSDOM} = jsdom;
 const implSymbol = Symbol("impl");
 const iconv = require('iconv-lite');
 const virtualConsole = new jsdom.VirtualConsole();
-virtualConsole.on("jsdomError", (e) => {/*console.log(e)*/});
-//virtualConsole.sendTo(console);
+//virtualConsole.on("jsdomError", (e) => {/*console.log(e)*/});
+virtualConsole.sendTo(console);
 
 exports.lambdaHandler = (event, context, callback) => {
   let params = event.queryStringParameters || event
-  let _url = params.url
+  let _url = params.url;
   let wait = parseInt(params.wait || 1) * 1000
   let delay = parseInt(params.delay || 5) * 1000
   let method = params.method || 'GET'
@@ -36,13 +36,14 @@ exports.lambdaHandler = (event, context, callback) => {
         body: '<html lang="ja"></html>',
       })
     }
+    console.log("url:", response.request.uri.href || _url);
     console.log(response.headers);
     try {
       let encoding = ((response.headers['content-type'] || '').split('charset=')[1] || 'utf-8').toLowerCase();
       let dom = new JSDOM(
         iconv.decode(body, encoding),
         {
-          url: response.request.uri.href || _uri,
+          url: response.request.uri.href || _url,
           headers: response.headers,
           userAgent: options.headers['User-Agent'],
           runScripts: 'dangerously',
@@ -60,7 +61,7 @@ exports.lambdaHandler = (event, context, callback) => {
             dom = new JSDOM(
               iconv.decode(body, tagEncoding),
               {
-                url: response.request.uri.href || _uri,
+                url: response.request.uri.href || _url,
                 headers: response.headers,
                 userAgent: options.headers['User-Agent'],
                 runScripts: 'dangerously',
@@ -75,7 +76,9 @@ exports.lambdaHandler = (event, context, callback) => {
         }
       }
 
-      let timer = dom.window.setTimeout(() => {
+      // shoudl not use dom.window.setTimeout
+      // otherwise the operation might be canceled
+      let timer = setTimeout(() => {
         if (dom.window._document) {
           // clear execution queue
           let head = dom.window._document;
