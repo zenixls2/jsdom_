@@ -17,7 +17,7 @@ npm run test
 
 ### Usage
 
-https://{your_lambda_endpoint}?url={URL_ENCODED}\[&deplay={SECOND}\]\[&method={METHOD}\[&dataType={DATA_TYPE}\]\]\[&wait={WAIT_SECOND}\]
+https://{your_lambda_endpoint}?url={URL_ENCODED}\[&delay={SECOND}\]\[&method={METHOD}\[&dataType={DATA_TYPE}\]\]\[&wait={WAIT_SECOND}\]
 
 - URL_ENCODED: target url using encodeURIComponent(url) or something equivalent
 
